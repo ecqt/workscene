@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workscene Social Media Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      padding: 24px 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+    .header p {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      background: #fff;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { background: #f0f0f0; }
+    .tab-btn.active {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .metric-card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .metric-card .label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .metric-card .value {
+      font-size: 26px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .metric-card .change {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .up { color: #1a9e6a; }
+    .down { color: #d84040; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .chart-block {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .chart-block .chart-label {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 160px;
+    }
+
+    .footer {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .metric-grid, .chart-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Workscene — Social Media Performance</h1>
+    <p>Dec 2025 – Mar 2026 &nbsp;·&nbsp; Data from Meta Business Suite & TikTok Studio</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-p="facebook">Facebook</button>
+    <button class="tab-btn" data-p="instagram">Instagram</button>
+    <button class="tab-btn" data-p="tiktok">TikTok</button>
+  </div>
+
+  <div class="metric-grid" id="cards"></div>
+
+  <div class="chart-grid">
+    <div class="chart-block">
+      <div class="chart-label" id="reach-label">Organic reach</div>
+      <div class="chart-wrap"><canvas id="c-reach" aria-label="Monthly reach trend"></canvas></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-label">Followers</div>
+      <div class="chart-wrap"><canvas id="c-followers" aria-label="Monthly followers trend"></canvas></div>
+    </div>
+    <div class="chart-block">
+      <div class="chart-label" id="int-label">Interactions</div>
+      <div class="chart-wrap"><canvas id="c-interactions" aria-label="Monthly interactions trend"></canvas></div>
+    </div>
+  </div>
+
+  <p class="footer">socialsenses. &nbsp;·&nbsp; Updated monthly</p>
+
+  <script>
+    const months = ['Dec', 'Jan', 'Feb', 'Mar'];
+
+    const platforms = {
+      facebook: {
+        color: '#378ADD',
+        reachLabel: 'Organic reach',
+        intLabel: 'Interactions',
+        reach:        { label: 'Organic reach',   values: [11247, 8112, 10433, 15116] },
+        followers:    { label: 'Followers',        values: [13593, 13625, 13656, 13708] },
+        interactions: { label: 'Interactions',     values: [241, 209, 165, 292] }
+      },
+      instagram: {
+        color: '#D4537E',
+        reachLabel: 'Organic reach',
+        intLabel: 'Interactions',
+        reach:        { label: 'Organic reach',   values: [26300, 21500, 25100, 27000] },
+        followers:    { label: 'Followers',        values: [7561, 7558, 7559, 7664] },
+        interactions: { label: 'Interactions',     values: [637, 492, 662, 1100] }
+      },
+      tiktok: {
+        color: '#1D9E75',
+        reachLabel: 'Post views',
+        intLabel: 'Likes, shares & saves',
+        reach:        { label: 'Post views',             values: [2042, 2045, 6317, 7300] },
+        followers:    { label: 'Followers',               values: [653, 649, 646, 642] },
+        interactions: { label: 'Likes, shares & saves',   values: [95, 80, 156, 125] }
+      }
+    };
+
+    const chartInstances = {};
+
+    function fmt(n) {
+      if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K';
+      return Math.round(n).toLocaleString();
+    }
+
+    function changeInfo(vals) {
+      const prev = vals[vals.length - 2];
+      const curr = vals[vals.length - 1];
+      const diff = curr - prev;
+      const up = diff >= 0;
+      const sign = up ? '+' : '';
+      if (Math.abs(diff) < 100) return { str: sign + diff, up };
+      const pct = ((diff / prev) * 100).toFixed(1);
+      return { str: sign + pct + '%', up };
+    }
+
+    function renderCards(p) {
+      const d = platforms[p];
+      document.getElementById('cards').innerHTML = ['reach','followers','interactions'].map(k => {
+        const m = d[k];
+        const ch = changeInfo(m.values);
+        const cls = ch.up ? 'up' : 'down';
+        const arrow = ch.up ? '↑' : '↓';
+        return `<div class="metric-card">
+          <div class="label">${m.label}</div>
+          <div class="value">${fmt(m.values[m.values.length - 1])}</div>
+          <div class="change ${cls}">${arrow} ${ch.str} vs last month</div>
+        </div>`;
+      }).join('');
+      document.getElementById('reach-label').textContent = d.reachLabel;
+      document.getElementById('int-label').textContent = d.intLabel;
+    }
+
+    function buildChart(id, values, color) {
+      const ctx = document.getElementById(id);
+      if (!ctx) return;
+      if (chartInstances[id]) chartInstances[id].destroy();
+      const last = values.length - 1;
+      chartInstances[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [{
+            data: values,
+            backgroundColor: values.map((_, i) => i === last ? color : color + '44'),
+            borderRadius: 4,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.parsed.y.toLocaleString() } }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, color: '#999', autoSkip: false, maxRotation: 0 }
+            },
+            y: {
+              grid: { color: 'rgba(0,0,0,0.06)', lineWidth: 0.5 },
+              ticks: { font: { size: 10 }, color: '#999', callback: v => fmt(v) },
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+
+    function render(p) {
+      const d = platforms[p];
+      renderCards(p);
+      buildChart('c-reach', d.reach.values, d.color);
+      buildChart('c-followers', d.followers.values, d.color);
+      buildChart('c-interactions', d.interactions.values, d.color);
+    }
+
+    document.getElementById('tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.p);
+    });
+
+    render('facebook');
+  </script>
+</body>
+</html>
