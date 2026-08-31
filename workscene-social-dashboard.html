@@ -25,7 +25,7 @@
     .chart-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .chart-block { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 16px; }
     .chart-block .chart-label { font-size: 12px; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .chart-wrap { position: relative; height: 160px; }
+    .chart-wrap { position: relative; height: 180px; }
     .footer { margin-top: 16px; font-size: 11px; color: #aaa; text-align: center; }
     @media (max-width: 600px) { .metric-grid, .chart-grid { grid-template-columns: 1fr; } }
   </style>
@@ -33,7 +33,7 @@
 <body>
   <div class="header">
     <h1>Workscene — Social Media Performance</h1>
-    <p>Apr 2026 – Jul 2026 &nbsp;·&nbsp; Data from Meta Business Suite & TikTok Studio</p>
+    <p>Jan 2026 – Aug 2026 &nbsp;·&nbsp; Data from Meta Business Suite & TikTok Studio</p>
   </div>
 
   <div class="tabs" id="tabs">
@@ -62,21 +62,21 @@
   <p class="footer">socialsenses. &nbsp;·&nbsp; Updated monthly</p>
 
   <script>
-    const months = ['Apr', 'May', 'Jun', 'Jul'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
 
     const platforms = {
       facebook: { color: '#378ADD', reachLabel: 'Organic reach', intLabel: 'Interactions',
-        reach:        { label: 'Organic reach',  values: [8974, 10112, 19397, 24862] },
-        followers:    { label: 'Followers',      values: [13748, 13778, 13898, 14026], stepSize: 100 },
-        interactions: { label: 'Interactions',   values: [109, 182, 476, 476], stepSize: 50 } },
+        reach:        { label: 'Organic reach',  values: [8112, 10433, 15116, 8974, 10112, 19397, 24862, 20324] },
+        followers:    { label: 'Followers',      values: [13625, 13656, 13708, 13748, 13778, 13898, 14026, 14119], stepSize: 100 },
+        interactions: { label: 'Interactions',   values: [209, 165, 292, 109, 182, 476, 476, 446], stepSize: 50 } },
       instagram: { color: '#D4537E', reachLabel: 'Organic reach', intLabel: 'Interactions',
-        reach:        { label: 'Organic reach',  values: [19762, 26858, 30784, 26510] },
-        followers:    { label: 'Followers',      values: [7672, 7985, 8133, 8226], stepSize: 100 },
-        interactions: { label: 'Interactions',   values: [617, 3465, 1633, 1030] } },
+        reach:        { label: 'Organic reach',  values: [21500, 25100, 27000, 19762, 26858, 30784, 26510, 29779] },
+        followers:    { label: 'Followers',      values: [7558, 7559, 7664, 7672, 7985, 8133, 8226, 8451], stepSize: 100 },
+        interactions: { label: 'Interactions',   values: [492, 662, 1100, 617, 3465, 1633, 1030, 1370] } },
       tiktok: { color: '#1D9E75', reachLabel: 'Post views', intLabel: 'Likes, shares & saves',
-        reach:        { label: 'Post views',             values: [7411, 9778, 51300, 14300] },
-        followers:    { label: 'Followers',               values: [651, 655, 733, 738], stepSize: 50 },
-        interactions: { label: 'Likes, shares & saves',  values: [86, 108, 1637, 374] } }
+        reach:        { label: 'Post views',             values: [2045, 6317, 7300, 7411, 9778, 51300, 14300, 10400] },
+        followers:    { label: 'Followers',               values: [649, 646, 642, 651, 655, 733, 738, 740], stepSize: 50 },
+        interactions: { label: 'Likes, shares & saves',  values: [80, 156, 125, 86, 108, 1637, 374, 173] } }
     };
 
     const chartInstances = {};
@@ -112,16 +112,16 @@
       if (!ctx) return;
       if (chartInstances[id]) chartInstances[id].destroy();
       const last = values.length - 1;
-      const yTicks = { font: { size: 10 }, color: '#999', callback: v => fmt(v) };
+      const yTicks = { font: { size: 9 }, color: '#999', callback: v => fmt(v) };
       if (stepSize) yTicks.stepSize = stepSize;
       chartInstances[id] = new Chart(ctx, {
         type: 'bar',
-        data: { labels: months, datasets: [{ data: values, backgroundColor: values.map((_, i) => i === last ? color : color + '44'), borderRadius: 4, borderSkipped: false }] },
+        data: { labels: months, datasets: [{ data: values, backgroundColor: values.map((_, i) => i === last ? color : color + '44'), borderRadius: 3, borderSkipped: false }] },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y.toLocaleString() } } },
           scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#999', autoSkip: false, maxRotation: 0 } },
+            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#999', autoSkip: false, maxRotation: 0 } },
             y: { grid: { color: 'rgba(0,0,0,0.06)', lineWidth: 0.5 }, ticks: yTicks, beginAtZero: false }
           }
         }
